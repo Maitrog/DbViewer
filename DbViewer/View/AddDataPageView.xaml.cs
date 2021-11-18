@@ -53,20 +53,40 @@ namespace DbViewer.View
             var columns = Db.GetColumn(tables.SelectedValue.ToString());
             foreach (var column in columns)
             {
-                stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TextBlock() { Text = $"{column.Key}", Margin = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Left });
+                stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TextBlock()
+                {
+                    Text = $"{column.Key}",
+                    Margin = new Thickness(5),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Style = FindResource("mainText") as Style
+                });
                 if (fk.Contains(column.Key))
                 {
                     string fkTable = FindMasterTableName(foreignKeys, column.Key);
                     string columnName = FindMasterColumnName(foreignKeys, column.Key);
                     List<string> columnData = Db.GetColumnFromTable(fkTable, columnName);
-                    ComboBox comboBox = new ComboBox { Width = 150, Margin = new Thickness(5, 0, 0, 5), HorizontalAlignment = HorizontalAlignment.Left, ItemsSource = columnData };
+                    ComboBox comboBox = new ComboBox
+                    {
+                        Width = 150,
+                        Margin = new Thickness(5, 0, 0, 5),
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        ItemsSource = columnData,
+                        Style = FindResource("mainComboBox") as Style
+                    };
                     stackPanel.Children.Insert(stackPanel.Children.Count - 1, comboBox);
                 }
                 else if (column.Value.Name == "DateTime")
                 {
                     if (column.Key.Contains("Время"))
                     {
-                        stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TimePicker() { Width = 150, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(5, 0, 0, 5) });
+                        stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TimePicker()
+                        {
+                            Width = 150,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            Margin = new Thickness(5, 0, 0, 5),
+                            FontFamily = new FontFamily("Rounded Mplus"),
+                            FontSize = 14
+                        });
                     }
                     else
                     {
@@ -75,13 +95,20 @@ namespace DbViewer.View
                             Width = 150,
                             HorizontalAlignment = HorizontalAlignment.Left,
                             Margin = new Thickness(5, 0, 0, 5),
-                            SelectedDateFormat = DatePickerFormat.Long
+                            SelectedDateFormat = DatePickerFormat.Long,
+                            Style = FindResource("mainDatePicker") as Style
                         });
                     }
                 }
                 else
                 {
-                    stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TextBox() { Width = 150, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(5, 0, 0, 5) });
+                    stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TextBox()
+                    {
+                        Width = 150,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        Margin = new Thickness(5, 0, 0, 5),
+                        Style = FindResource("mainTextBox") as Style
+                    });
                 }
             }
 
@@ -121,7 +148,7 @@ namespace DbViewer.View
             }
 
             string result = Db.AddValues(tableName, columnsName, values);
-            if(result == "201")
+            if (result == "201")
             {
                 System.Windows.MessageBox.Show("Значение успешно добавлено");
             }

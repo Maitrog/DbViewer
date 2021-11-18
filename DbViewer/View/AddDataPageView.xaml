@@ -9,9 +9,15 @@
     
     <ScrollViewer>
         <StackPanel x:Name="stackPanel" Orientation="Vertical" HorizontalAlignment="Left">
-            <TextBlock Margin="5">Выберите таблицу</TextBlock>
-            <ComboBox x:Name="tables" Width="150" Margin="5" HorizontalAlignment="Left"/>
-            <Button x:Name="AddButton" Content="Добавить" Click="AddButton_Click" Margin="5"/>
+            <TextBlock Text="Выберите таблицу" Margin="5" 
+                   Style="{StaticResource mainText}"/>
+            <ComboBox x:Name="tables" Width="150" Margin="5" 
+                      Style="{StaticResource mainComboBox}"/>
+            <Button x:Name="AddButton" Height="25"
+                    BorderThickness="0" Background="#C3BEBE"
+                    Click="AddButton_Click" Margin="5">
+                <TextBlock Text="Добавить" Style="{StaticResource mainText}"/>
+            </Button>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

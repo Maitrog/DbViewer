@@ -85,12 +85,12 @@ namespace DbViewer
 
         private void UpdateData_Click(object sender, RoutedEventArgs e)
         {
-            if (MainGrid.Children[2].GetType() != Type.GetType("Six_Screens_Controller.view.TemplatesPageView"))
+            if (MainGrid.Children[2].GetType() != Type.GetType("DbViewer.View.UpdateDataPageView"))
             {
-                //TemplatesPageView templatesPageControl = new TemplatesPageView();
-                //Grid.SetColumn(templatesPageControl, 2);
-                //MainGrid.Children.RemoveAt(2);
-                //MainGrid.Children.Insert(2, templatesPageControl);
+                UpdateDataPageView updateDataPageView = new UpdateDataPageView();
+                Grid.SetColumn(updateDataPageView, 2);
+                MainGrid.Children.RemoveAt(2);
+                MainGrid.Children.Insert(2, updateDataPageView);
 
                 ((MainGrid.Children[0] as Grid).Children[0] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
                 ((MainGrid.Children[0] as Grid).Children[1] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
