@@ -5,8 +5,74 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DbViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="DbViewer" Height="450" Width="800">
+    
+    <Grid x:Name="MainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="35*" MinWidth="100" MaxWidth="200"/>
+            <ColumnDefinition Width="1.5*" MaxWidth="5"/>
+            <ColumnDefinition Width="155.5*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="LeftMenu" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="12.5*" MaxHeight="80"/>
+                <RowDefinition Height="12.5*" MaxHeight="80"/>
+                <RowDefinition Height="12.5*" MaxHeight="80"/>
+                <RowDefinition Height="12.5*" MaxHeight="80"/>
+                <RowDefinition Height="58*"/>
+            </Grid.RowDefinitions>
+
+            <Button x:Name="AllData" Grid.Row="0" HorizontalAlignment="Stretch"
+                    Click="AllData_Click"
+                    Height="{Binding ElementName=LeftMenu, Path=Width}"
+                    BorderThickness="0" Background="#C3BEBE">
+                <TextBlock Text="Вывод данных" Grid.Column="1" VerticalAlignment="Center" 
+                               Margin="5,0,0,0" Foreground="#595959" FontSize="16"
+                               FontFamily="Rounded Mplus" FontWeight="SemiBold"/>
+            </Button>
+
+            <Button x:Name="AddData" Grid.Row="1" HorizontalAlignment="Stretch" 
+                    Click="AddData_Click"
+                    Height="{Binding ElementName=LeftMenu, Path=Width}"
+                    BorderThickness="0" Background="White">
+
+                <TextBlock Text="Добавить" VerticalAlignment="Center" 
+                               Margin="5,0,0,0" Foreground="#595959" FontSize="16"
+                               FontFamily="Rounded Mplus" FontWeight="SemiBold"/>
+            </Button>
+
+            <Button Grid.Row="2" x:Name="DeleteData" HorizontalAlignment="Stretch" 
+                    Click="DeleteData_Click"
+                    Height="{Binding ElementName=LeftMenu, Path=Width}"
+                    BorderThickness="0" Background="White">
+
+                <TextBlock Text="Удалить" Grid.Column="1" VerticalAlignment="Center" 
+                               Margin="5,0,0,0" Foreground="#595959" FontSize="16"
+                               FontFamily="Rounded Mplus" FontWeight="SemiBold"/>
+            </Button>
+
+            <Button Grid.Row="3" x:Name="UpdateData" HorizontalAlignment="Stretch" 
+                    Click="UpdateData_Click"
+                    Height="{Binding ElementName=LeftMenu, Path=Width}"
+                    BorderThickness="0" Background="White">
+
+                <TextBlock Text="Обновить" Grid.Column="1" VerticalAlignment="Center" 
+                               Margin="5,0,0,0" Foreground="#595959" FontSize="16"
+                               FontFamily="Rounded Mplus" FontWeight="SemiBold"/>
+            </Button>
+        </Grid>
+
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch" Margin="0,0,0,0" 
+                       BorderThickness="0">
+            <GridSplitter.Background>
+                <LinearGradientBrush StartPoint="0,5" EndPoint="1,5">
+                    <GradientStop Color="#949494" Offset="0"/>
+                    <GradientStop Color="#D4D4D4" Offset="0.7"/>
+                    <GradientStop Color="#EDEDED" Offset="1"/>
+                </LinearGradientBrush>
+            </GridSplitter.Background>
+        </GridSplitter>
     </Grid>
 </Window>
