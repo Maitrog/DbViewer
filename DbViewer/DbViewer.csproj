@@ -122,6 +122,9 @@
     <Compile Include="View\DeleteDataPageView.xaml.cs">
       <DependentUpon>DeleteDataPageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SqlRequestPageView.xaml.cs">
+      <DependentUpon>SqlRequestPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\UpdateDataPageView.xaml.cs">
       <DependentUpon>UpdateDataPageView.xaml</DependentUpon>
     </Compile>
@@ -149,6 +152,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\DeleteDataPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SqlRequestPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -43,11 +43,7 @@ namespace DbViewer
                 Grid.SetColumn(allDataPage, 2);
                 MainGrid.Children.RemoveAt(2);
                 MainGrid.Children.Insert(2, allDataPage);
-
-                ((MainGrid.Children[0] as Grid).Children[1] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[2] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[3] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[0] as Button).Background = new SolidColorBrush(Color.FromRgb(197, 197, 197));
+                ChangeColor(0);
             }
         }
 
@@ -59,11 +55,7 @@ namespace DbViewer
                 Grid.SetColumn(addDataPage, 2);
                 MainGrid.Children.RemoveAt(2);
                 MainGrid.Children.Insert(2, addDataPage);
-
-                ((MainGrid.Children[0] as Grid).Children[0] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[2] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[3] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[1] as Button).Background = new SolidColorBrush(Color.FromRgb(197, 197, 197));
+                ChangeColor(1);
             }
         }
 
@@ -75,11 +67,7 @@ namespace DbViewer
                 Grid.SetColumn(deleteDataPage, 2);
                 MainGrid.Children.RemoveAt(2);
                 MainGrid.Children.Insert(2, deleteDataPage);
-
-                ((MainGrid.Children[0] as Grid).Children[0] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[1] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[3] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[2] as Button).Background = new SolidColorBrush(Color.FromRgb(197, 197, 197));
+                ChangeColor(2);
             }
         }
 
@@ -91,11 +79,34 @@ namespace DbViewer
                 Grid.SetColumn(updateDataPageView, 2);
                 MainGrid.Children.RemoveAt(2);
                 MainGrid.Children.Insert(2, updateDataPageView);
+                ChangeColor(3);
+            }
+        }
 
-                ((MainGrid.Children[0] as Grid).Children[0] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[1] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[2] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                ((MainGrid.Children[0] as Grid).Children[3] as Button).Background = new SolidColorBrush(Color.FromRgb(197, 197, 197));
+        private void SqlRequest_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainGrid.Children[2].GetType() != Type.GetType("DbViewer.View.SqlRequestPageView"))
+            {
+                SqlRequestPageView sqlRequestPageView = new SqlRequestPageView();
+                Grid.SetColumn(sqlRequestPageView, 2);
+                MainGrid.Children.RemoveAt(2);
+                MainGrid.Children.Insert(2, sqlRequestPageView);
+                ChangeColor(4);
+            }
+        }
+
+        private void ChangeColor(int index)
+        {
+            for (int i = 0; i < (MainGrid.Children[0] as Grid).Children.Count; i++)
+            {
+                if (i != index)
+                {
+                    ((MainGrid.Children[0] as Grid).Children[i] as Button).Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                }
+                else
+                {
+                    ((MainGrid.Children[0] as Grid).Children[i] as Button).Background = new SolidColorBrush(Color.FromRgb(197, 197, 197));
+                }
             }
         }
     }

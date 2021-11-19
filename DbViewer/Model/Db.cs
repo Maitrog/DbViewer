@@ -10,8 +10,8 @@ namespace DbViewer.Model
 {
     public class Db
     {
-        private static string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"S:\\Documents\\Миша\\МИЭТ\\5 семестр\\БД\\Lab2.accdb\"";
-        private static OleDbConnection cn = new OleDbConnection(CON_STR);
+        private static readonly string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"S:\\Documents\\Миша\\МИЭТ\\5 семестр\\БД\\Lab2.accdb\"";
+        private static readonly OleDbConnection cn = new OleDbConnection(CON_STR);
 
         public static List<string> GetTable()
         {
@@ -109,25 +109,6 @@ namespace DbViewer.Model
             {
                 cn.Close();
             }
-        }
-
-        public static List<KeyValuePair<string, Type>> GetColumnWithoutAutoIncrement(string tableName)
-        {
-            List<KeyValuePair<string, Type>> columns = new List<KeyValuePair<string, Type>>();
-            cn.Open();
-            OleDbDataAdapter dbAdapter = new OleDbDataAdapter($"SELECT * FROM [{tableName}]", cn);
-            DataTable dataTable = new DataTable();
-            dbAdapter.Fill(dataTable);
-            cn.Close();
-            foreach (DataColumn item in dataTable.Columns)
-            {
-                if (item.AutoIncrement == false)
-                {
-                    columns.Add(new KeyValuePair<string, Type>(item.ColumnName, item.DataType));
-                }
-            }
-
-            return columns;
         }
 
         public static string AddValues(string tableName, List<string> values)
@@ -296,6 +277,39 @@ namespace DbViewer.Model
             {
                 cn.Close();
             }
+        }
+
+        public static List<KeyValuePair<string, string>> RetrieveViewsInfo()
+        {
+            List<KeyValuePair<string, string>> views = new List<KeyValuePair<string, string>>();
+            cn.Open();
+            using (DataTable dtProcedures = cn.GetOleDbSchemaTable(OleDbSchemaGuid.Views, null))
+            {
+                foreach (DataRow row in dtProcedures.Rows)
+                {
+                    views.Add(new KeyValuePair<string, string>(row[2].ToString(), row[3].ToString()));
+                }
+            }
+            cn.Close();
+            return views;
+        }
+
+        public static List<KeyValuePair<string, string>> RetrieveProveduresInfo()
+        {
+            List<KeyValuePair<string, string>> views = new List<KeyValuePair<string, string>>();
+            cn.Open();
+            using (DataTable dtProcedures = cn.GetOleDbSchemaTable(OleDbSchemaGuid.Procedures, null))
+            {
+                foreach (DataRow row in dtProcedures.Rows)
+                {
+                    if ((short)row["PROCEDURE_TYPE"] == 3)
+                    {
+                        views.Add(new KeyValuePair<string, string>(row["PROCEDURE_NAME"].ToString(), row["PROCEDURE_DEFINITION"].ToString()));
+                    }
+                }
+            }
+            cn.Close();
+            return views;
         }
     }
 }

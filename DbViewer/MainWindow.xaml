@@ -21,7 +21,8 @@
                 <RowDefinition Height="12.5*" MaxHeight="80"/>
                 <RowDefinition Height="12.5*" MaxHeight="80"/>
                 <RowDefinition Height="12.5*" MaxHeight="80"/>
-                <RowDefinition Height="58*"/>
+                <RowDefinition Height="12.5*" MaxHeight="80"/>
+                <RowDefinition Height="45.5*"/>
             </Grid.RowDefinitions>
 
             <Button x:Name="AllData" Grid.Row="0" HorizontalAlignment="Stretch"
@@ -53,6 +54,14 @@
                     BorderThickness="0" Background="White">
 
                 <TextBlock Text="Обновить" Style="{StaticResource mainText}"/>
+            </Button>
+
+            <Button Grid.Row="4" x:Name="SqlRequest" HorizontalAlignment="Stretch" 
+                    Click="SqlRequest_Click"
+                    Height="{Binding ElementName=LeftMenu, Path=Width}"
+                    BorderThickness="0" Background="White">
+
+                <TextBlock Text="SQL Запросы" Style="{StaticResource mainText}"/>
             </Button>
         </Grid>
 
