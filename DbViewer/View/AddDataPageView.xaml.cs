@@ -119,12 +119,7 @@ namespace DbViewer.View
         {
             string tableName = tables.SelectedValue.ToString();
             List<KeyValuePair<string, Type>> columns = Db.GetColumn(tableName);
-            List<string> columnsName = new List<string>();
             List<string> values = new List<string>();
-            foreach (var column in columns)
-            {
-                columnsName.Add(column.Key);
-            }
 
             for (int i = 3; i < stackPanel.Children.Count - 1; i += 2)
             {
@@ -147,7 +142,7 @@ namespace DbViewer.View
                 }
             }
 
-            string result = Db.AddValues(tableName, columnsName, values);
+            string result = Db.AddValues(tableName, values);
             if (result == "201")
             {
                 System.Windows.MessageBox.Show("Значение успешно добавлено");

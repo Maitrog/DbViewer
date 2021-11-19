@@ -22,16 +22,29 @@ namespace DbViewer.View
     /// </summary>
     public partial class UpdateDataPageView : UserControl
     {
+        private string _tableName;
         public UpdateDataPageView()
         {
             InitializeComponent();
             Loaded += UpdateDataPageView_Loaded;
+        }
+        public UpdateDataPageView(string tableName)
+        {
+            _tableName = tableName;
+            InitializeComponent();
+            Loaded += UpdateDataPageViewWithTable_Loaded;
         }
 
         private void UpdateDataPageView_Loaded(object sender, RoutedEventArgs e)
         {
             tables.ItemsSource = Db.GetTable();
             tables.SelectionChanged += Tables_SelectionChanged;
+        }
+        private void UpdateDataPageViewWithTable_Loaded(object sender, RoutedEventArgs e)
+        {
+            tables.ItemsSource = Db.GetTable();
+            tables.SelectionChanged += Tables_SelectionChanged;
+            tables.SelectedValue = tables.ItemsSource.Cast<string>().FirstOrDefault(x => x == _tableName);
         }
 
         private void Tables_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -93,6 +106,17 @@ namespace DbViewer.View
             if (dataGrid.SelectedValue != null)
             {
                 selectedElement = (dataGrid.SelectedValue as DataRowView).Row.ItemArray;
+            }
+
+            UpdateDataView updateDataView = new UpdateDataView(table, selectedElement);
+            Grid.SetColumn(updateDataView, 2);
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.GetType() == typeof(MainWindow))
+                {
+                    (window as MainWindow).MainGrid.Children.RemoveAt(2);
+                    (window as MainWindow).MainGrid.Children.Insert(2, updateDataView);
+                }
             }
         }
     }

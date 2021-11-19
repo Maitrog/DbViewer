@@ -10,7 +10,7 @@ namespace DbViewer.Model
 {
     public class Db
     {
-        private static string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"S:\\Documents\\Миша\\МИЭТ\\5 семестр\\БД\\Lab2.mdb\"";
+        private static string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"S:\\Documents\\Миша\\МИЭТ\\5 семестр\\БД\\Lab2.accdb\"";
         private static OleDbConnection cn = new OleDbConnection(CON_STR);
 
         public static List<string> GetTable()
@@ -34,7 +34,7 @@ namespace DbViewer.Model
         {
             List<KeyValuePair<string, Type>> columns = new List<KeyValuePair<string, Type>>();
             cn.Open();
-            OleDbDataAdapter dbAdapter = new OleDbDataAdapter(@"SELECT * FROM " + tableName, cn);
+            OleDbDataAdapter dbAdapter = new OleDbDataAdapter($"SELECT * FROM [{tableName}]", cn);
             DataTable dataTable = new DataTable();
             dbAdapter.Fill(dataTable);
             cn.Close();
@@ -55,7 +55,7 @@ namespace DbViewer.Model
             {
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
-                cmd.CommandText = $"SELECT * FROM {tableName}";
+                cmd.CommandText = $"SELECT * FROM [{tableName}]";
                 OleDbDataReader rd = cmd.ExecuteReader();
                 if (rd.HasRows)
                 {
@@ -89,7 +89,7 @@ namespace DbViewer.Model
             {
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
-                cmd.CommandText = $"SELECT [{columnName}] FROM {tableName}";
+                cmd.CommandText = $"SELECT [{columnName}] FROM [{tableName}]";
                 OleDbDataReader rd = cmd.ExecuteReader();
                 if (rd.HasRows)
                 {
@@ -115,7 +115,7 @@ namespace DbViewer.Model
         {
             List<KeyValuePair<string, Type>> columns = new List<KeyValuePair<string, Type>>();
             cn.Open();
-            OleDbDataAdapter dbAdapter = new OleDbDataAdapter(@"SELECT * FROM " + tableName, cn);
+            OleDbDataAdapter dbAdapter = new OleDbDataAdapter($"SELECT * FROM [{tableName}]", cn);
             DataTable dataTable = new DataTable();
             dbAdapter.Fill(dataTable);
             cn.Close();
@@ -130,14 +130,15 @@ namespace DbViewer.Model
             return columns;
         }
 
-        public static string AddValues(string tableName, List<string> columns, List<string> values)
+        public static string AddValues(string tableName, List<string> values)
         {
+            List<string> columns = GetColumn(tableName).Select(x => x.Key).ToList();
             cn.Open();
             try
             {
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
-                string command = $"INSERT INTO {tableName}(";
+                string command = $"INSERT INTO [{tableName}](";
                 for (int i = 0; i < columns.Count; i++)
                 {
                     command += $"[{columns[i]}]";
@@ -165,7 +166,7 @@ namespace DbViewer.Model
                 cmd.ExecuteNonQuery();
                 return "201";
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return e.Message;
             }
@@ -223,7 +224,7 @@ namespace DbViewer.Model
             {
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
-                string command = $"DELETE FROM {tableName} WHERE ";
+                string command = $"DELETE FROM [{tableName}] WHERE ";
                 for (int i = 0; i < values.Length; i++)
                 {
                     command += $"[{columns[i].Key}] = @{i} ";
@@ -237,10 +238,60 @@ namespace DbViewer.Model
                 cmd.ExecuteNonQuery();
                 return "200";
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return e.Message;
             }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        public static string UpdateValue(string tableName, List<string> newValues, object[] oldValues)
+        {
+            List<string> columns = GetColumn(tableName).Select(x => x.Key).ToList();
+            cn.Open();
+            try
+            {
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = cn;
+                string command = $"UPDATE [{tableName}] SET ";
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    command += $"[{columns[i]}] = @{i}";
+                    if (i < columns.Count - 1)
+                    {
+                        command += ", ";
+                    }
+                }
+                command += " WHERE ";
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    command += $"[{columns[i]}] = @{i + columns.Count}";
+                    if (i < columns.Count - 1)
+                    {
+                        command += " AND ";
+                    }
+                }
+                cmd.CommandText = command;
+
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    cmd.Parameters.AddWithValue($"{i}", newValues[i]);
+                }
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    cmd.Parameters.AddWithValue($"{i + columns.Count}", oldValues[i].ToString());
+                }
+                cmd.ExecuteNonQuery();
+                return "201";
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+
             finally
             {
                 cn.Close();
