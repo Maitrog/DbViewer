@@ -46,7 +46,7 @@ namespace DbViewer.View
                 }
             }
 
-            var columns = Db.GetColumn(_tableName);
+            var columns = Db.GetColumns(_tableName);
             for (int i = 0; i < columns.Count; i++)
             {
                 KeyValuePair<string, Type> column = columns[i];
@@ -61,7 +61,7 @@ namespace DbViewer.View
                 {
                     string fkTable = FindMasterTableName(foreignKeys, column.Key);
                     string columnName = FindMasterColumnName(foreignKeys, column.Key);
-                    List<string> columnData = Db.GetColumnFromTable(fkTable, columnName);
+                    List<string> columnData = Db.GetValuesFromColumn(fkTable, columnName);
                     ComboBox comboBox = new ComboBox
                     {
                         Width = 150,
@@ -149,7 +149,7 @@ namespace DbViewer.View
 
         private void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
-            List<KeyValuePair<string, Type>> columns = Db.GetColumn(_tableName);
+            List<KeyValuePair<string, Type>> columns = Db.GetColumns(_tableName);
             List<string> columnsName = new List<string>();
             List<string> newValues = new List<string>();
             foreach (var column in columns)

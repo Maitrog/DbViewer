@@ -30,7 +30,7 @@ namespace DbViewer.View
 
         private void DeleteDataPageView_Loaded(object sender, RoutedEventArgs e)
         {
-            tables.ItemsSource = Db.GetTable();
+            tables.ItemsSource = Db.GetTables();
             tables.SelectionChanged += Tables_SelectionChanged;
         }
 
@@ -42,7 +42,7 @@ namespace DbViewer.View
         private void UpdateTableData()
         {
             dataGrid.Columns.Clear();
-            List<KeyValuePair<string, Type>> columns = Db.GetColumn(tables.SelectedItem.ToString());
+            List<KeyValuePair<string, Type>> columns = Db.GetColumns(tables.SelectedItem.ToString());
             DataTable dt = new DataTable();
 
             DataColumn dataColumn;
@@ -71,7 +71,7 @@ namespace DbViewer.View
                 }
             }
 
-            var res = Db.GetAllFromTable(tables.SelectedValue.ToString());
+            var res = Db.GetValuseFromTable(tables.SelectedValue.ToString());
             foreach (List<string> data in res)
             {
                 DataRow row = dt.NewRow();

@@ -9,13 +9,21 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition/>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Vertical">
             <TextBlock Text="Выберите процедуру" Style="{StaticResource mainText}"/>
-            <ComboBox x:Name="Procedures" Style="{StaticResource mainComboBox}"/>
+            <ComboBox x:Name="Requests" Style="{StaticResource mainComboBox}"/>
         </StackPanel>
+
+        <Button x:Name="ExecuteButton" Grid.Row="1" Click="ExecuteButton_Click"
+                BorderThickness="0" Background="#c9c9c9" Width="100"
+                HorizontalAlignment="Left" Margin="5" Height="25">
+            <TextBlock Text="Выполнить" Style="{StaticResource mainText}"/>
+        </Button>
+
+        <DataGrid x:Name="dataGrid" Grid.Row="2"/>
     </Grid>
 </UserControl>

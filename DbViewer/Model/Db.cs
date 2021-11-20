@@ -13,7 +13,7 @@ namespace DbViewer.Model
         private static readonly string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"S:\\Documents\\Миша\\МИЭТ\\5 семестр\\БД\\Lab2.accdb\"";
         private static readonly OleDbConnection cn = new OleDbConnection(CON_STR);
 
-        public static List<string> GetTable()
+        public static List<string> GetTables()
         {
             List<string> tablesName = new List<string>();
             cn.Open();
@@ -30,7 +30,7 @@ namespace DbViewer.Model
             return tablesName;
         }
 
-        public static List<KeyValuePair<string, Type>> GetColumn(string tableName)
+        public static List<KeyValuePair<string, Type>> GetColumns(string tableName)
         {
             List<KeyValuePair<string, Type>> columns = new List<KeyValuePair<string, Type>>();
             cn.Open();
@@ -46,10 +46,10 @@ namespace DbViewer.Model
             return columns;
         }
 
-        public static List<List<string>> GetAllFromTable(string tableName)
+        public static List<List<string>> GetValuseFromTable(string tableName)
         {
             List<List<string>> result = new List<List<string>>();
-            List<KeyValuePair<string, Type>> columns = GetColumn(tableName);
+            List<KeyValuePair<string, Type>> columns = GetColumns(tableName);
             cn.Open();
             try
             {
@@ -81,7 +81,7 @@ namespace DbViewer.Model
             }
         }
 
-        public static List<string> GetColumnFromTable(string tableName, string columnName)
+        public static List<string> GetValuesFromColumn(string tableName, string columnName)
         {
             List<string> result = new List<string>();
             cn.Open();
@@ -111,9 +111,9 @@ namespace DbViewer.Model
             }
         }
 
-        public static string AddValues(string tableName, List<string> values)
+        public static string AddValue(string tableName, List<string> values)
         {
-            List<string> columns = GetColumn(tableName).Select(x => x.Key).ToList();
+            List<string> columns = GetColumns(tableName).Select(x => x.Key).ToList();
             cn.Open();
             try
             {
@@ -199,7 +199,7 @@ namespace DbViewer.Model
 
         public static string DeleteValue(string tableName, object[] values)
         {
-            List<KeyValuePair<string, Type>> columns = GetColumn(tableName);
+            List<KeyValuePair<string, Type>> columns = GetColumns(tableName);
             cn.Open();
             try
             {
@@ -231,7 +231,7 @@ namespace DbViewer.Model
 
         public static string UpdateValue(string tableName, List<string> newValues, object[] oldValues)
         {
-            List<string> columns = GetColumn(tableName).Select(x => x.Key).ToList();
+            List<string> columns = GetColumns(tableName).Select(x => x.Key).ToList();
             cn.Open();
             try
             {
@@ -279,24 +279,24 @@ namespace DbViewer.Model
             }
         }
 
-        public static List<KeyValuePair<string, string>> RetrieveViewsInfo()
+        public static List<KeyValuePair<string, KeyValuePair<string, string>>> RetrieveViewsInfo()
         {
-            List<KeyValuePair<string, string>> views = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, KeyValuePair<string, string>>> views = new List<KeyValuePair<string, KeyValuePair<string, string>>>();
             cn.Open();
             using (DataTable dtProcedures = cn.GetOleDbSchemaTable(OleDbSchemaGuid.Views, null))
             {
                 foreach (DataRow row in dtProcedures.Rows)
                 {
-                    views.Add(new KeyValuePair<string, string>(row[2].ToString(), row[3].ToString()));
+                    views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row[2].ToString(), new KeyValuePair<string, string>(row[3].ToString(), "VIEW")));
                 }
             }
             cn.Close();
             return views;
         }
 
-        public static List<KeyValuePair<string, string>> RetrieveProveduresInfo()
+        public static List<KeyValuePair<string, KeyValuePair<string, string>>> RetrieveProveduresInfo()
         {
-            List<KeyValuePair<string, string>> views = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, KeyValuePair<string, string>>> views = new List<KeyValuePair<string, KeyValuePair<string, string>>>();
             cn.Open();
             using (DataTable dtProcedures = cn.GetOleDbSchemaTable(OleDbSchemaGuid.Procedures, null))
             {
@@ -304,12 +304,144 @@ namespace DbViewer.Model
                 {
                     if ((short)row["PROCEDURE_TYPE"] == 3)
                     {
-                        views.Add(new KeyValuePair<string, string>(row["PROCEDURE_NAME"].ToString(), row["PROCEDURE_DEFINITION"].ToString()));
+                        views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
+                            new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "FUNCTION")));
                     }
                 }
             }
             cn.Close();
             return views;
+        }
+
+        public static List<List<string>> ExecuteView(string viewName)
+        {
+            List<List<string>> result = new List<List<string>>();
+            cn.Open();
+            try
+            {
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = cn;
+                cmd.CommandText = $"SELECT * FROM [{viewName}]";
+                OleDbDataReader rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        result.Add(new List<string>());
+                        for (int i = 0; i < rd.FieldCount; i++)
+                        {
+                            result[result.Count - 1].Add(rd[i].ToString());
+                        }
+                    }
+
+                }
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        public static List<string> GetColumnNameFromView(string viewName)
+        {
+            List<string> columns = new List<string>();
+            cn.Open();
+            try
+            {
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = cn;
+                cmd.CommandText = $"SELECT * FROM [{viewName}]";
+                OleDbDataReader rd = cmd.ExecuteReader();
+
+                for (int i = 0; i < rd.FieldCount; i++)
+                {
+                    columns.Add(rd.GetName(i));
+                }
+                rd.Close();
+                return columns;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        public static List<List<string>> GetValuesFromFunction(string funcName, string[] valuesName, object[] values)
+        {
+            List<List<string>> result = new List<List<string>>();
+            cn.Open();
+            try
+            {
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = cn;
+                cmd.CommandText = $"SELECT * FROM [{funcName}]";
+                for(int i = 0; i < valuesName.Length; i++)
+                {
+                    cmd.Parameters.AddWithValue(valuesName[i], values[i]);
+                }
+                OleDbDataReader rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        result.Add(new List<string>());
+                        for (int i = 0; i < rd.FieldCount; i++)
+                        {
+                            result[result.Count - 1].Add(rd[i].ToString());
+                        }
+                    }
+
+                }
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+        public static List<string> GetColumnNameFromFunction(string funcName, string[] valuesName, object[] values)
+        {
+            List<string> columns = new List<string>();
+            cn.Open();
+            try
+            {
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = cn;
+                cmd.CommandText = $"SELECT * FROM [{funcName}]";
+                for (int i = 0; i < valuesName.Length; i++)
+                {
+                    cmd.Parameters.AddWithValue(valuesName[i], values[i]);
+                }
+                OleDbDataReader rd = cmd.ExecuteReader();
+
+                for (int i = 0; i < rd.FieldCount; i++)
+                {
+                    columns.Add(rd.GetName(i));
+                }
+                rd.Close();
+                return columns;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                cn.Close();
+            }
         }
     }
 }

@@ -30,7 +30,7 @@ namespace DbViewer.View
 
         private void AddDataPageView_Loaded(object sender, RoutedEventArgs e)
         {
-            tables.ItemsSource = Db.GetTable();
+            tables.ItemsSource = Db.GetTables();
             tables.SelectionChanged += Tables_SelectionChanged;
         }
 
@@ -50,7 +50,7 @@ namespace DbViewer.View
                 }
             }
 
-            var columns = Db.GetColumn(tables.SelectedValue.ToString());
+            var columns = Db.GetColumns(tables.SelectedValue.ToString());
             foreach (var column in columns)
             {
                 stackPanel.Children.Insert(stackPanel.Children.Count - 1, new TextBlock()
@@ -64,7 +64,7 @@ namespace DbViewer.View
                 {
                     string fkTable = FindMasterTableName(foreignKeys, column.Key);
                     string columnName = FindMasterColumnName(foreignKeys, column.Key);
-                    List<string> columnData = Db.GetColumnFromTable(fkTable, columnName);
+                    List<string> columnData = Db.GetValuesFromColumn(fkTable, columnName);
                     ComboBox comboBox = new ComboBox
                     {
                         Width = 150,
@@ -118,7 +118,7 @@ namespace DbViewer.View
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             string tableName = tables.SelectedValue.ToString();
-            List<KeyValuePair<string, Type>> columns = Db.GetColumn(tableName);
+            List<KeyValuePair<string, Type>> columns = Db.GetColumns(tableName);
             List<string> values = new List<string>();
 
             for (int i = 3; i < stackPanel.Children.Count - 1; i += 2)
@@ -142,7 +142,7 @@ namespace DbViewer.View
                 }
             }
 
-            string result = Db.AddValues(tableName, values);
+            string result = Db.AddValue(tableName, values);
             if (result == "201")
             {
                 System.Windows.MessageBox.Show("Значение успешно добавлено");
