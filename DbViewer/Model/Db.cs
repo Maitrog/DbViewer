@@ -307,6 +307,11 @@ namespace DbViewer.Model
                         views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
                             new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "FUNCTION")));
                     }
+                    else if((short)row["PROCEDURE_TYPE"] == 2 && !((string)row["PROCEDURE_NAME"]).Contains("~"))
+                    {
+                        views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
+                            new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "PROCEDURE")));
+                    }
                 }
             }
             cn.Close();
@@ -375,7 +380,7 @@ namespace DbViewer.Model
             }
         }
 
-        public static List<List<string>> GetValuesFromFunction(string funcName, string[] valuesName, object[] values)
+        public static List<List<string>> ExecuteFunction(string funcName, List<string> valuesName, List<string> values)
         {
             List<List<string>> result = new List<List<string>>();
             cn.Open();
@@ -384,7 +389,7 @@ namespace DbViewer.Model
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
                 cmd.CommandText = $"SELECT * FROM [{funcName}]";
-                for(int i = 0; i < valuesName.Length; i++)
+                for(int i = 0; i < valuesName.Count; i++)
                 {
                     cmd.Parameters.AddWithValue(valuesName[i], values[i]);
                 }
@@ -412,7 +417,7 @@ namespace DbViewer.Model
                 cn.Close();
             }
         }
-        public static List<string> GetColumnNameFromFunction(string funcName, string[] valuesName, object[] values)
+        public static List<string> GetColumnNameFromFunction(string funcName, List<string> valuesName, List<string> values)
         {
             List<string> columns = new List<string>();
             cn.Open();
@@ -421,7 +426,7 @@ namespace DbViewer.Model
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
                 cmd.CommandText = $"SELECT * FROM [{funcName}]";
-                for (int i = 0; i < valuesName.Length; i++)
+                for (int i = 0; i < valuesName.Count; i++)
                 {
                     cmd.Parameters.AddWithValue(valuesName[i], values[i]);
                 }

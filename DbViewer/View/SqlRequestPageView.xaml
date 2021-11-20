@@ -13,9 +13,12 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical">
-            <TextBlock Text="Выберите процедуру" Style="{StaticResource mainText}"/>
-            <ComboBox x:Name="Requests" Style="{StaticResource mainComboBox}"/>
+        <StackPanel x:Name="stackPanel" Orientation="Vertical">
+            <TextBlock Text="Выберите запрос" Style="{StaticResource mainText}"
+                       Margin="5"/>
+            <ComboBox x:Name="Requests" Style="{StaticResource mainComboBox}"
+                      MinWidth="150" Margin="5,0,5,5" 
+                      SelectionChanged="Requests_SelectionChanged"/>
         </StackPanel>
 
         <Button x:Name="ExecuteButton" Grid.Row="1" Click="ExecuteButton_Click"
@@ -24,6 +27,6 @@
             <TextBlock Text="Выполнить" Style="{StaticResource mainText}"/>
         </Button>
 
-        <DataGrid x:Name="dataGrid" Grid.Row="2"/>
+        <DataGrid x:Name="dataGrid" Margin="5" Grid.Row="2"/>
     </Grid>
 </UserControl>
