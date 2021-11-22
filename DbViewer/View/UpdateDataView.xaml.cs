@@ -84,9 +84,8 @@ namespace DbViewer.View
                             Margin = new Thickness(5, 0, 0, 5),
                             FontFamily = new FontFamily("Rounded Mplus"),
                             FontSize = 14,
-                            Text = _valuse[i].ToString()
+                            Value = DateTime.Parse(_valuse[i].ToString())
                     };
-                        //timePicker.Text = _valuse[i].ToString(); 
                         stackPanel.Children.Insert(stackPanel.Children.Count - 1, timePicker);
                     }
                     else

@@ -92,7 +92,7 @@ namespace DbViewer.View
             string table = tables.SelectedValue.ToString();
             if (dataGrid.SelectedValue != null)
             {
-                selectedElement = (dataGrid.SelectedValue as DataRowView).Row.ItemArray;
+                selectedElement = (dataGrid.SelectedValue as DataRowView)?.Row?.ItemArray;
             }
 
             if(!string.IsNullOrEmpty(table) && selectedElement != null)

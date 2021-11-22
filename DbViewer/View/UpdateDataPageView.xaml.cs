@@ -105,17 +105,19 @@ namespace DbViewer.View
             string table = tables.SelectedValue.ToString();
             if (dataGrid.SelectedValue != null)
             {
-                selectedElement = (dataGrid.SelectedValue as DataRowView).Row.ItemArray;
+                selectedElement = (dataGrid.SelectedValue as DataRowView)?.Row?.ItemArray;
             }
-
-            UpdateDataView updateDataView = new UpdateDataView(table, selectedElement);
-            Grid.SetColumn(updateDataView, 2);
-            foreach (Window window in Application.Current.Windows)
+            if (selectedElement != null && !string.IsNullOrEmpty(table))
             {
-                if (window.GetType() == typeof(MainWindow))
+                UpdateDataView updateDataView = new UpdateDataView(table, selectedElement);
+                Grid.SetColumn(updateDataView, 2);
+                foreach (Window window in Application.Current.Windows)
                 {
-                    (window as MainWindow).MainGrid.Children.RemoveAt(2);
-                    (window as MainWindow).MainGrid.Children.Insert(2, updateDataView);
+                    if (window.GetType() == typeof(MainWindow))
+                    {
+                        (window as MainWindow).MainGrid.Children.RemoveAt(2);
+                        (window as MainWindow).MainGrid.Children.Insert(2, updateDataView);
+                    }
                 }
             }
         }
