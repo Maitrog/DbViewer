@@ -59,7 +59,7 @@ namespace DbViewer.View
                 else if (type == "FUNCTION")
                 {
                     List<string> values = new List<string>();
-                    for (int i = 3; i < stackPanel.Children.Count; i++)
+                    for (int i = 3; i < stackPanel.Children.Count; i+=2)
                     {
                         values.Add((stackPanel.Children[i] as TextBox).Text);
                     }
@@ -73,9 +73,95 @@ namespace DbViewer.View
                     DataView view = new DataView(dt);
                     dataGrid.ItemsSource = view;
                 }
+                else if (type == "PROCEDURE")
+                {
+                    List<string> values = new List<string>();
+                    for (int i = 3; i < stackPanel.Children.Count; i+=2)
+                    {
+                        values.Add((stackPanel.Children[i] as TextBox).Text);
+                    }
+
+                    string result = Db.ExecuteProcedure(_request.Key, values);
+                    List<string> columns = new List<string> { "Результат" };
+                    DataTable dt = CreateDataTable(columns);
+                    FillTable(columns, dt, new List<List<string>> { new List<string> { result } });
+
+                    DataView view = new DataView(dt);
+                    dataGrid.ItemsSource = view;
+                }
             }
         }
 
+        private void Requests_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            while (stackPanel.Children.Count > 2)
+            {
+                stackPanel.Children.RemoveAt(stackPanel.Children.Count - 1);
+            }
+            if (Requests.SelectedValue != null)
+            {
+                _request = (KeyValuePair<string, KeyValuePair<string, string>>)Requests.SelectedValue;
+            }
+
+            string type = _request.Value.Value;
+            if (!string.IsNullOrEmpty(type))
+            {
+                if (type == "FUNCTION")
+                {
+                    List<string> valuesName = new List<string>();
+                    string requestString = _request.Value.Key;
+                    requestString = requestString.ToUpper();
+                    string condition = requestString.Split(new string[] { "WHERE" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+                    ParseWhere(valuesName, condition);
+
+                    AddFields(valuesName.ToArray());
+                }
+                else if (type == "PROCEDURE")
+                {
+                    string requestString = _request.Value.Key;
+                    requestString = requestString.ToUpper();
+                    if (requestString.Contains("INSERT INTO"))
+                    {
+                        string valuesString = requestString.Split(new string[] { "VALUES" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+                        valuesString = ReplaceSymbols(valuesString);
+                        string[] values = valuesString.Split(new string[] { ", " }, 20, StringSplitOptions.RemoveEmptyEntries);
+                        AddFields(values);
+                    }
+                    else if (requestString.Contains("DELETE"))
+                    {
+                        List<string> valuesName = new List<string>();
+                        string condition = requestString.Split(new string[] { "WHERE" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+                        ParseWhere(valuesName, condition);
+
+                        AddFields(valuesName.ToArray());
+                    }
+                    else if (requestString.Contains("UPDATE"))
+                    {
+                        List<string> valuesName = new List<string>();
+                        string[] res = requestString.Split(new string[] { "SET", "WHERE" }, 3, StringSplitOptions.None);
+                        string valuesString = res[1];
+                        string conditionsString = null;
+                        if (res.Length == 3)
+                        {
+                            conditionsString = res[2];
+                        }
+                        string[] values = valuesString.Split(new string[] { "," }, 10, StringSplitOptions.RemoveEmptyEntries);
+                        for (int i = 0; i < values.Length; i++)
+                        {
+                            string value = values[i].Split(new string[] { "=" }, 10, StringSplitOptions.RemoveEmptyEntries)[1];
+                            value = Normolize(value);
+                            valuesName.Add(value);
+                        }
+                        if (!string.IsNullOrEmpty(conditionsString))
+                        {
+                            ParseWhere(valuesName, conditionsString);
+                        }
+
+                        AddFields(valuesName.ToArray());
+                    }
+                }
+            }
+        }
         private static void FillTable(List<string> columns, DataTable dt, List<List<string>> result)
         {
             foreach (List<string> data in result)
@@ -116,108 +202,58 @@ namespace DbViewer.View
             }
         }
 
-        private void Requests_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private string Normolize(string value)
         {
-            while (stackPanel.Children.Count > 2)
-            {
-                stackPanel.Children.RemoveAt(stackPanel.Children.Count - 1);
-            }
-            if (Requests.SelectedValue != null)
-            {
-                _request = (KeyValuePair<string, KeyValuePair<string, string>>)Requests.SelectedValue;
-            }
+            value = ReplaceSymbols(value);
+            value = value.ToLower();
+            value = FirstCharToUpper(value);
+            return value;
+        }
 
-            string type = _request.Value.Value;
-            if (!string.IsNullOrEmpty(type))
+        private void ParseWhere(List<string> valuesName, string conditionsString)
+        {
+            string[] conditions = conditionsString.Split(new string[] { "AND", "OR" }, 20, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < conditions.Length; i++)
             {
-                if (type == "FUNCTION")
+                string temp = conditions[i].Split(new string[] { ">", "<", "=", ">=", "<=" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+                temp = Normolize(temp);
+                valuesName.Add(temp);
+            }
+        }
+
+        private void AddFields(string[] values)
+        {
+            _valuesName = new List<string>();
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (int.TryParse(values[i], out int res))
                 {
-                    _valuesName = new List<string>();
-                    string requestString = _request.Value.Key;
-                    requestString = requestString.ToUpper();
-                    string condition = requestString.Split(new string[] { "WHERE" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
-                    string[] conditions = condition.Split(new string[] { "AND", "OR" }, 20, StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < conditions.Length; i++)
-                    {
-                        conditions[i] = ReplaceSymbols(conditions[i]);
-                        string[] temp = conditions[i].Split(new string[] { ">", "<", "=", ">=", "<=" }, 2, StringSplitOptions.RemoveEmptyEntries);
-                        temp[1] = temp[1].ToLower();
-                        temp[1] = FirstCharToUpper(temp[1]);
-                        _valuesName.Add(temp[1]);
-                    }
-
-                    foreach (string name in _valuesName)
-                    {
-                        stackPanel.Children.Add(new TextBlock
-                        {
-                            Text = name,
-                            Margin = new Thickness(5),
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            Style = FindResource("mainText") as Style
-                        });
-                        stackPanel.Children.Add(new TextBox
-                        {
-                            Width = 150,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            Margin = new Thickness(5, 0, 5, 5),
-                            Style = FindResource("mainTextBox") as Style
-                        });
-                    }
+                    continue;
                 }
-                else if (type == "PROCEDURE")
+                else if (values[i].Contains('\''))
                 {
-                    string requestString = _request.Value.Key;
-                    requestString = requestString.ToUpper();
-                    if(requestString.Contains("INSERT INTO"))
+                    continue;
+                }
+                else
+                {
+                    values[i] = values[i].ToLower();
+                    values[i] = FirstCharToUpper(values[i]);
+                    _valuesName.Add(values[i]);
+                    stackPanel.Children.Add(new TextBlock
                     {
-                        string valuesString = requestString.Split(new string[] { "VALUES", ";\r\n" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
-                        valuesString = ReplaceSymbols(valuesString);
-                        string[] values = valuesString.Split(new string[] { ", " }, 20, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < values.Length; i++)
-                        {
-                            if (int.TryParse(values[i], out int res))
-                            {
-                                continue;
-                            }
-                            else if (values[i].Contains('\''))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                values[i] = values[i].ToLower();
-                                values[i] = FirstCharToUpper(values[i]);
-                                _valuesName.Add(values[i]);
-                                stackPanel.Children.Add(new TextBlock
-                                {
-                                    Text = values[i],
-                                    Margin = new Thickness(5),
-                                    HorizontalAlignment = HorizontalAlignment.Left,
-                                    Style = FindResource("mainText") as Style
-                                });
-                                stackPanel.Children.Add(new TextBox
-                                {
-                                    Width = 150,
-                                    HorizontalAlignment = HorizontalAlignment.Left,
-                                    Margin = new Thickness(5, 0, 5, 5),
-                                    Style = FindResource("mainTextBox") as Style
-                                });
-                            }
-                        }
-
-                    }
-                    else if (requestString.Contains("DELETE"))
+                        Text = values[i],
+                        Margin = new Thickness(5),
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        Style = FindResource("mainText") as Style
+                    });
+                    stackPanel.Children.Add(new TextBox
                     {
-                        
-                    }
-                    else if(requestString.Contains("UPDATE"))
-                    {
-
-                    }
-                    else if(requestString.Contains("UNION"))
-                    {
-
-                    }
+                        Width = 150,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        Margin = new Thickness(5, 0, 5, 5),
+                        Style = FindResource("mainTextBox") as Style
+                    });
                 }
             }
         }
@@ -228,9 +264,10 @@ namespace DbViewer.View
             str = str.Replace(")", "");
             str = str.Replace("]", "");
             str = str.Replace("[", "");
-            str = str.Replace(";\r\n", "");
+            str = str.Replace(";", "");
+            str = str.Replace("\r\n", "");
 
-            if(str[0] == ' ')
+            if (str[0] == ' ')
             {
                 str = str.Substring(1);
             }

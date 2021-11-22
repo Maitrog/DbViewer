@@ -309,8 +309,16 @@ namespace DbViewer.Model
                     }
                     else if((short)row["PROCEDURE_TYPE"] == 2 && !((string)row["PROCEDURE_NAME"]).Contains("~"))
                     {
-                        views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
-                            new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "PROCEDURE")));
+                        if ((row["PROCEDURE_DEFINITION"] as string).Contains("UNION"))
+                        {
+                            views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
+                            new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "VIEW")));
+                        }
+                        else
+                        {
+                            views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
+                                new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "PROCEDURE")));
+                        }
                     }
                 }
             }
@@ -442,6 +450,44 @@ namespace DbViewer.Model
             catch
             {
                 return null;
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        public static string ExecuteProcedure(string procedureName, List<string> values)
+        {
+            cn.Open();
+            try
+            {
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = cn;
+                string command = $"EXEC [{procedureName}] ";
+                for (int i = 0; i < values.Count; i++)
+                {
+                    string value = values[i];
+                    if (int.TryParse(value, out int res))
+                    {
+                        command += res;
+                    }
+                    else
+                    {
+                        command += $"\'{value}\'";
+                    }
+                    if(i < values.Count - 1)
+                    {
+                        command += ", ";
+                    }
+                }
+                cmd.CommandText = command;
+                cmd.ExecuteNonQuery();
+                return "200";
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
             finally
             {
