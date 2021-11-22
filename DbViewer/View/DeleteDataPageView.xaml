@@ -16,7 +16,7 @@
 
         <TextBlock Text="Выберите таблицу" Margin="5" 
                    Style="{StaticResource mainText}"/>
-        
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

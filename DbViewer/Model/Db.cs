@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DbViewer.Model
 {
@@ -307,7 +305,7 @@ namespace DbViewer.Model
                         views.Add(new KeyValuePair<string, KeyValuePair<string, string>>(row["PROCEDURE_NAME"].ToString(),
                             new KeyValuePair<string, string>(row["PROCEDURE_DEFINITION"].ToString(), "FUNCTION")));
                     }
-                    else if((short)row["PROCEDURE_TYPE"] == 2 && !((string)row["PROCEDURE_NAME"]).Contains("~"))
+                    else if ((short)row["PROCEDURE_TYPE"] == 2 && !((string)row["PROCEDURE_NAME"]).Contains("~"))
                     {
                         if ((row["PROCEDURE_DEFINITION"] as string).Contains("UNION"))
                         {
@@ -397,7 +395,7 @@ namespace DbViewer.Model
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = cn;
                 cmd.CommandText = $"SELECT * FROM [{funcName}]";
-                for(int i = 0; i < valuesName.Count; i++)
+                for (int i = 0; i < valuesName.Count; i++)
                 {
                     cmd.Parameters.AddWithValue(valuesName[i], values[i]);
                 }
@@ -476,7 +474,7 @@ namespace DbViewer.Model
                     {
                         command += $"\'{value}\'";
                     }
-                    if(i < values.Count - 1)
+                    if (i < values.Count - 1)
                     {
                         command += ", ";
                     }

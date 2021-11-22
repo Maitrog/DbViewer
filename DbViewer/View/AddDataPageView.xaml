@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:DbViewer.View"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
+
     <ScrollViewer>
         <StackPanel x:Name="stackPanel" Orientation="Vertical" HorizontalAlignment="Left">
             <TextBlock Text="Выберите таблицу" Margin="5" 
