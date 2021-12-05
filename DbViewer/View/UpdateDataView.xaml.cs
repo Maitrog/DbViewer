@@ -28,6 +28,7 @@ namespace DbViewer.View
 
         private void UpdateDataView_Loaded(object sender, RoutedEventArgs e)
         {
+            List<string> primaryKeys = Db.RetrievePrimaryKeyInfo(_tableName);
             List<ForeignKey> foreignKeys = Db.RetrieveForeignKeyInfo(_tableName);
             List<string> fk = new List<string>();
             foreach (ForeignKey foreignKey in foreignKeys)
@@ -38,7 +39,24 @@ namespace DbViewer.View
                 }
             }
 
-            var columns = Db.GetColumns(_tableName);
+            List<KeyValuePair<string, Type>> columns = Db.GetColumns(_tableName);
+            for (int i = 0; i < columns.Count; i++)
+            {
+                if (primaryKeys.Contains(columns[i].Key))
+                {
+                    columns.RemoveAt(i);
+                    object[] newValue = new object[_valuse.Length - 1];
+                    for (int j = 0; j < _valuse.Length; j++)
+                    {
+                        if (i == j)
+                        {
+                            continue;
+                        }
+                        newValue[i > j ? j : j - 1] = _valuse[j];
+                    }
+                    _valuse = newValue;
+                }
+            }
             for (int i = 0; i < columns.Count; i++)
             {
                 KeyValuePair<string, Type> column = columns[i];
@@ -140,13 +158,9 @@ namespace DbViewer.View
 
         private void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
-            List<KeyValuePair<string, Type>> columns = Db.GetColumns(_tableName);
-            List<string> columnsName = new List<string>();
+            List<string> primaryKeys = Db.RetrievePrimaryKeyInfo(_tableName);
+            List<string> columnsName = Db.GetColumns(_tableName).Where(x => !primaryKeys.Contains(x.Key)).Select(x => x.Key).ToList();
             List<string> newValues = new List<string>();
-            foreach (var column in columns)
-            {
-                columnsName.Add(column.Key);
-            }
 
             for (int i = 2; i < stackPanel.Children.Count - 1; i += 2)
             {
@@ -169,7 +183,7 @@ namespace DbViewer.View
                 }
             }
 
-            string result = Db.UpdateValue(_tableName, newValues, _valuse);
+            string result = Db.UpdateValue(_tableName, columnsName, newValues, _valuse);
             if (result == "201")
             {
                 System.Windows.MessageBox.Show("Значение успешно обновлено");

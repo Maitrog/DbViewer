@@ -8,7 +8,7 @@ namespace DbViewer.Model
 {
     public class Db
     {
-        private static readonly string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"S:\\Documents\\Миша\\МИЭТ\\5 семестр\\БД\\Lab2.accdb\"";
+        private static readonly string CON_STR = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"C:\\Users\\Mihay\\Documents\\MIET\\5 semester\\БД\\Lab2.accdb\"";
         private static readonly OleDbConnection cn = new OleDbConnection(CON_STR);
 
         public static List<string> GetTables()
@@ -195,6 +195,21 @@ namespace DbViewer.Model
             return foreignKeys;
         }
 
+        public static List<string> RetrievePrimaryKeyInfo(string tableName)
+        {
+            List<string> primaryKey = new List<string>();
+            cn.Open();
+            using (DataTable dtPrimaryKeys = cn.GetOleDbSchemaTable(OleDbSchemaGuid.Primary_Keys, new object[] { null, null, tableName}))
+            {
+                for (int i = 0; i < dtPrimaryKeys.Rows.Count; i++)
+                {
+                    primaryKey.Add((string)dtPrimaryKeys.Rows[i][3]);
+                }
+            }
+            cn.Close();
+            return primaryKey;
+        }
+
         public static string DeleteValue(string tableName, object[] values)
         {
             List<KeyValuePair<string, Type>> columns = GetColumns(tableName);
@@ -227,9 +242,8 @@ namespace DbViewer.Model
             }
         }
 
-        public static string UpdateValue(string tableName, List<string> newValues, object[] oldValues)
+        public static string UpdateValue(string tableName, List<string> columns, List<string> newValues, object[] oldValues)
         {
-            List<string> columns = GetColumns(tableName).Select(x => x.Key).ToList();
             cn.Open();
             try
             {
