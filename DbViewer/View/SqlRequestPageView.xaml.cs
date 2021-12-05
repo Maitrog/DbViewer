@@ -207,9 +207,13 @@ namespace DbViewer.View
             string[] conditions = conditionsString.Split(new string[] { "AND", "OR" }, 20, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < conditions.Length; i++)
             {
-                string temp = conditions[i].Split(new string[] { ">", "<", "=", ">=", "<=" }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
-                temp = Normolize(temp);
-                valuesName.Add(temp);
+                string[] splitCond = conditions[i].Split(new string[] { ">", "<", "=", ">=", "<=" }, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (splitCond.Length > 1)
+                {
+                    string temp = splitCond[1];
+                    temp = Normolize(temp);
+                    valuesName.Add(temp);
+                }
             }
         }
 
