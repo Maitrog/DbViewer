@@ -56,6 +56,11 @@ namespace DbViewer.View
                     }
 
                     List<string> columns = Db.GetColumnNameFromFunction(_request.Key, _valuesName, values);
+                    if(columns == null)
+                    {
+                        MessageBox.Show("Ошибка выполнения запроса.\nПроверьте правильность ввденных параметров");
+                        return;
+                    }
                     DataTable dt = CreateDataTable(columns);
 
                     List<List<string>> result = Db.ExecuteFunction(_request.Key, _valuesName, values);

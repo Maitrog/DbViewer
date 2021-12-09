@@ -147,7 +147,7 @@ namespace DbViewer.Model
             }
             catch (Exception e)
             {
-                return e.Message;
+                return "Проверьте правильность введенных параметров";
             }
 
             finally
@@ -280,11 +280,10 @@ namespace DbViewer.Model
                 cmd.ExecuteNonQuery();
                 return "201";
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return e.Message;
+                return "Неправильный тип данных";
             }
-
             finally
             {
                 cn.Close();
